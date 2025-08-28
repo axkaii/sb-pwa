@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Starbucks Core Menu Simulator - Upgraded</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2dd388">
+<style>
+:root{--bg:#0f1220;--card:#161a2b;--muted:#9aa3b2;--text:#e9edf3;--accent:#2dd388;--line:#242b43;--chip:#273056}
+body{margin:0;font-family:sans-serif;color:var(--text);background:var(--bg);padding:20px}
+h1{color:var(--accent)}
+.card{background:var(--card);padding:16px;border-radius:12px;margin-bottom:20px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+label{display:block;margin-top:12px;color:var(--muted)}
+select,input{width:100%;padding:8px;margin-top:5px;border-radius:8px;background:#0f1427;color:var(--text);border:1px solid var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:5px}
+.chip{padding:6px 10px;border-radius:999px;background:var(--chip);border:1px solid var(--line);cursor:pointer;font-size:13px}
+.actions{margin-top:12px}
+button{padding:8px 12px;border:none;border-radius:8px;background:var(--accent);color:#05251b;font-weight:bold;cursor:pointer;margin-right:6px}
+.barista-card{background:#0c1d16;border-radius:12px;padding:16px;margin-top:16px;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.barista-card h2{margin:0;color:var(--accent)}
+.barista-card div{margin:4px 0;font-size:14px;color:#cfd4dc}
+@media (max-width:600px){.barista-card{font-size:13px;padding:12px}}
+</style>
+</head>
+<body>
+<h1>Starbucks Core Menu Simulator</h1>
+
+<div class="card">
+<label>Drink Base</label>
+<select id="drink">
+  <optgroup label="Lattes">
+    <option>Hot Latte</option>
+    <option>Iced Latte</option>
+    <option>Vanilla Latte</option>
+    <option>Caramel Latte</option>
+  </optgroup>
+  <optgroup label="Mochas">
+    <option>Hot Mocha</option>
+    <option>Iced Mocha</option>
+    <option>White Chocolate Mocha</option>
+  </optgroup>
+  <optgroup label="Cappuccinos">
+    <option>Hot Cappuccino</option>
+    <option>Iced Cappuccino</option>
+  </optgroup>
+  <optgroup label="Cold Brews">
+    <option>Cold Brew</option>
+    <option>Nitro Cold Brew</option>
+    <option>Vanilla Sweet Cream Cold Brew</option>
+  </optgroup>
+  <optgroup label="Teas">
+    <option>Chai Latte</option>
+    <option>Black Tea</option>
+    <option>Green Tea</option>
+    <option>Teavana Shaken Iced Tea</option>
+  </optgroup>
+  <optgroup label="Refreshers">
+    <option>Strawberry Acai</option>
+    <option>Mango Dragonfruit</option>
+    <option>Very Berry Hibiscus</option>
+  </optgroup>
+  <optgroup label="Frappuccinos">
+    <option>Coffee Frappuccino</option>
+    <option>Mocha Frappuccino</option>
+    <option>Caramel Frappuccino</option>
+    <option>Java Chip Frappuccino</option>
+  </optgroup>
+</select>
+
+<label>Size</label>
+<select id="size">
+  <option>Tall</option>
+  <option>Grande</option>
+  <option>Venti</option>
+  <option>Trenta</option>
+</select>
+
+<label>Milk</label>
+<select id="milk">
+  <option>2%</option>
+  <option>Whole</option>
+  <option>Nonfat</option>
+  <option>Oat</option>
+  <option>Almond</option>
+  <option>Soy</option>
+  <option>Coconut</option>
+</select>
+
+<label>Shots</label>
+<input type="number" id="shots" value="2" min="0" max="6">
+
+<label>Syrups</label>
+<div class="chips" id="syrups"></div>
+
+<label>Toppings</label>
+<div class="chips" id="toppings"></div>
+
+<label>Temperature</label>
+<select id="temp">
+  <option>Hot</option>
+  <option>Iced</option>
+  <option>Blended</option>
+</select>
+
+<label>Extras</label>
+<div class="chips" id="extras"></div>
+
+<div class="actions">
+<button id="preview">Preview Order</button>
+<button id="copy">Copy Order Text</button>
+</div>
+
+<div class="barista-card" id="baristaCard">
+<h2 id="cardTitle">Your Drink</h2>
+<div id="cardDetails"></div>
+</div>
+</div>
+
+<script>
+const syrupOptions=["Vanilla","Caramel","Hazelnut","Peppermint","Mocha","White Mocha","Toffee Nut","Cinnamon Dolce"];
+const toppingOptions=["Whipped Cream","Caramel Drizzle","Mocha Drizzle","Cinnamon Powder","Chocolate Chips"];
+const extraOptions=["Extra Foam","Light Ice","No Whip","Sugar-Free Syrup"];
+
+function createChips(containerId, options){
+  const container=document.getElementById(containerId);
+  options.forEach(opt=>{
+    const chip=document.createElement('div');
+    chip.className='chip';
+    chip.textContent=opt;
+    chip.dataset.selected='false';
+    chip.addEventListener('click',()=>{
+      chip.dataset.selected=chip.dataset.selected==='true'?'false':'true';
+      chip.style.background=chip.dataset.selected==='true'?'#88ffa8':'#273056';
+    });
+    container.appendChild(chip);
+  });
+}
+createChips('syrups',syrupOptions);
+createChips('toppings',toppingOptions);
+createChips('extras',extraOptions);
+
+document.getElementById('preview').addEventListener('click',()=>{
+  const drink = document.getElementById('drink').value;
+  const size = document.getElementById('size').value;
+  const milk = document.getElementById('milk').value;
+  const shots = document.getElementById('shots').value;
+  const syrup = Array.from(document.getElementById('syrups').children).filter(c=>c.dataset.selected==='true').map(c=>c.textContent);
+  const toppings = Array.from(document.getElementById('toppings').children).filter(c=>c.dataset.selected==='true').map(c=>c.textContent);
+  const temp = document.getElementById('temp').value;
+  const extras = Array.from(document.getElementById('extras').children).filter(c=>c.dataset.selected==='true').map(c=>c.textContent);
+  const order = {drink,size,milk,shots,syrup,toppings,temp,extras};
+  const cardDetails=document.getElementById('cardDetails');
+  cardDetails.innerHTML=`<div><strong>Drink:</strong> ${drink}</div>
+<div><strong>Size:</strong> ${size}</div>
+<div><strong>Milk:</strong> ${milk}</div>
+<div><strong>Shots:</strong> ${shots}</div>
+<div><strong>Syrups:</strong> ${syrup.join(', ') || 'None'}</div>
+<div><strong>Toppings:</strong> ${toppings.join(', ') || 'None'}</div>
+<div><strong>Temperature:</strong> ${temp}</div>
+<div><strong>Extras:</strong> ${extras.join(', ') || 'None'}</div>`;
+});
+
+document.getElementById('copy').addEventListener('click',()=>{
+  const cardDetails=document.getElementById('cardDetails').innerText;
+  navigator.clipboard.writeText(cardDetails);
+  alert('Order copied!');
+});
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(()=>console.log('SW registered')).catch(()=>console.log('SW failed'));
+}
+</script>
+
+</body>
+</html>
